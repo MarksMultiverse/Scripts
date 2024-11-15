@@ -1,3 +1,29 @@
+# This code generates a random password and stores it in an Azure KeyVault.
+# There it can be picked up by newely created vitual machines.
+# This is an example what a .bicep file will look like:
+#
+#   resource randomAdminPassword 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
+#   name: 'randomAdminPassword-${uniqueString(deployment().name, location)}'
+#   location: location
+#   kind: 'AzurePowerShell'
+#   identity: {
+#     type: 'UserAssigned'
+#     userAssignedIdentities: {
+#       '${managedIdentity.id}': {}
+#     }
+#   }
+#   properties: {
+#     arguments: '-numberOfInstances ${numberOfInstances} -AZKVaultName ${AZKVaultName} -PadLeftInt ${padLeftInt}'-vmNamePrefix {$vmNamePrefix} -environmentName $(environmentName)-index $(vmInitialNumber)'
+#     azPowerShellVersion: '12.3.0'
+#     retentionInterval: 'P1D'
+#     scriptContent: loadTextContent('../../../scripts/Generate-passwords-as-secrets.ps1')
+#   }
+# }
+# 
+# The following line could be added to th virtuel machine resource/ module:
+#       adminPassword: keyVault.getSecret(toUpper('${vmNamePrefix}${padLeft((i+vmInitialNumber),padLeftInt,'0')}-${environmentName}-password'))
+
+
 Param (
     [Parameter(Mandatory = $true)]
     [string]$keyVaultName,
